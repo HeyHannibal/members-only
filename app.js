@@ -8,7 +8,7 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const mongoose = require("mongoose");
-const bcrypt = require('bcryptjs')
+const bcrypt = require("bcryptjs");
 
 const mongoDb = process.env.mongoURL;
 mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -16,10 +16,10 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
 const User = require("./models/user");
+const Message = require("./models/message");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-
 const app = express();
 
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
@@ -38,12 +38,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-
 // Set up local strategy
 passport.use(
   new LocalStrategy((username, password, done) => {
     User.findOne({ username: username }, (err, user) => {
-     console.log(user)
+      console.log(user);
       if (err) {
         return done(err);
       }
@@ -63,7 +62,7 @@ passport.use(
       ) {
         return done, false, { message: "Incorrect password" };
       }
-      console.log('done')
+      console.log("done");
       return done(null, user);
     });
   })
@@ -81,21 +80,18 @@ passport.deserializeUser(function (id, done) {
 
 app.get("/sign-up", (req, res) => res.render("sign-up-form"));
 app.get("/log-in", (req, res) => res.render("log-in-form"));
-app.get('/show-db', (req, res, next) => {
-  User.find({})
-        .exec( function (err, users) {
-          if (err) {
-            return next(err);
-          } else 
-          console.log(users)
-          res.redirect('./')
-        })
-  
-})
+app.get("/show-db", (req, res, next) => {
+  User.find({}).exec(function (err, users) {
+    if (err) {
+      return next(err);
+    } else console.log(users);
+    res.redirect("./");
+  });
+});
 
 app.post("/sign-up", (req, res, next) => {
   bcrypt.hash(req.body.password[0], 10, (err, hashedPassword) => {
-    const user = new User ({
+    const user = new User({
       username: req.body.username,
       password: hashedPassword,
     }).save((err) => {
@@ -103,12 +99,23 @@ app.post("/sign-up", (req, res, next) => {
         return next(err);
       }
       res.redirect("/");
+    });
   });
-  // res.redirect("/");
-})});
+});
 
-
-
+app.get("/comment", (req, res) => res.render("comment"));
+app.get("/comment/user/:id", (req, res) => {
+  if(req.params.id)
+  Message.find({'user': req.params.id})
+  .sort({date : 1})
+  .populate('user')
+  .exec(function (err, messages) {
+    if (err) {return next(err); }
+    console.log(messages)
+    res.render('user-messages', { messages: messages, })
+  })
+  else res.redirect('/')
+})
 app.post(
   "/log-in",
   passport.authenticate("local", {
@@ -119,6 +126,18 @@ app.post(
 app.get("/log-out", (req, res) => {
   req.logout();
   res.redirect("/");
+});
+
+app.post("/comment", (req, res, next) => {
+  const newComment = new Message({
+    title: req.body.title,
+    text: req.body.comment, 
+    user: req.user.id
+  })
+  newComment.save((err) => {
+    if (err) {return next(err)}
+    res.redirect("/")
+  })
 });
 
 // catch 404 and forward to error handler
