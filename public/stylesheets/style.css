@@ -1,8 +1,18 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  color: aliceblue;
+  background-color: rgb(3, 8, 14);
 }
 
 a {
-  color: #00B7FF;
+  color: #c7efff;
+}
+
+#nav{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#entry a{
+  padding: 0 1rem;
 }

@@ -3,7 +3,8 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  if(req.user) console.log(req.user.username)
+  res.render('index', { title: 'Auth-test', user: req.user });
 });
 
 module.exports = router;
