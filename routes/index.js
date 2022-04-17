@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
       .populate('user')
       .exec(function (err, messages) {
         if (err) {return next(err); }
-        
+        console.log(req.user)
         res.render('index', {user: req.user, messages: messages, })
       })
 

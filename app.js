@@ -20,6 +20,7 @@ const Message = require("./models/message");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const actionsRouter = require("./routes/actions");
 const app = express();
 
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/action", actionsRouter);
 // Set up local strategy
 passport.use(
   new LocalStrategy((username, password, done) => {
@@ -78,13 +80,13 @@ passport.deserializeUser(function (id, done) {
   });
 });
 
-app.use(function(req,res,next) {
+app.use(function (req, res, next) {
   res.locals.currentUser = req.user;
-  next()
-})
+  next();
+});
 
 app.get("/sign-up", (req, res) => res.render("sign-up-form"));
-app.get("/log-in", (req, res) => res.render("log-in-form"));
+app.get("/login", (req, res) => res.render("login-form"));
 app.get("/show-db", (req, res, next) => {
   User.find({}).exec(function (err, users) {
     if (err) {
@@ -118,12 +120,12 @@ app.get("/message/user/:id", (req, res) => {
           return next(err);
         }
         //console.log(messages)
-        res.render("user-messages", { messages: messages, user: req.user  });
+        res.render("user-messages", { messages: messages, user: req.user });
       });
   else res.redirect("/");
 });
 app.post(
-  "/log-in",
+  "/login",
   passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/",
@@ -134,33 +136,33 @@ app.get("/log-out", (req, res) => {
   res.redirect("/");
 });
 
+// app.get("/message", (req, res) => res.render("message-form", {user: req.user}));
 
-app.get("/message", (req, res) => res.render("message-form", {user: req.user}));
-
-app.post("/message", (req, res, next) => {
-  const newmessage = new Message({
-    title: req.body.title,
-    text: req.body.message,
-    user: req.user.id,
-  });
-  newmessage.save((err) => {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
-  });
-});
+// app.post("/message", (req, res, next) => {
+//   const newmessage = new Message({
+//     title: req.body.title,
+//     text: req.body.message,
+//     user: req.user.id,
+//   });
+//   newmessage.save((err) => {
+//     if (err) {
+//       return next(err);
+//     }
+//     res.redirect("/");
+//   });
+// });
 
 app.get("/membership", (req, res) => res.render("member-form"));
 app.post("/membership", (req, res) => {
   if (req.body.secretword === process.env.supersecretpassword) {
     User.findByIdAndUpdate(req.user._id, { is_member: true }).exec(
       (err, result) => {
-        if(err) {next(err)}
+        if (err) {
+          next(err);
+        }
         console.log(result);
-        req.user.is_member = true
+        req.user.is_member = true;
         res.redirect("/");
-        
       }
     );
   } else res.redirect("/");

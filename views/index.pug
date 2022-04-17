@@ -1,16 +1,18 @@
 extends layout
 
 block content
-  a(href='/message') Leave a message
+  if(user)
+    a(href='action/message') Leave a message
   if(messages)
     each message in messages
       div.message
-      if(user)
         h2= message.title
-      else
-        h2 Become a member to see the latest messages 
-      a(href=(`/message/user/${message.user._id}`)) by #{message.user.username}
-      if(user)
         p= message.text
-      else 
-        p Unavailable
+        if(user)
+          if((user && user.is_member) || (user.username === message.user.username))
+            a(href=(`/message/user/${message.user._id}`)) by #{message.user.username}
+          else 
+            p Anonymous
+        else 
+          p Anonymous
+

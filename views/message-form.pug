@@ -5,16 +5,13 @@ block content
     div.message-form
     form(method='POST', action='')
         if(user)
-            if(user.is_member)
-                div.from-group
-                    label(for='title') Title
-                    input#username.form-input(type='text', name='title')
-                div.from-group
-                    label(for='message') Create a new a message. 
-                    textarea(name="message", cols="30", rows="10" ) 
-                button.btn-submit(type='submit') Submit        
-            else 
-                a(href='./membership') Only members can create messages. Get Membership
+            div.from-group
+                label(for='title') Title
+                input#username.form-input(type='text', name='title')
+            div.from-group
+                label(for='message') Create a new a message. 
+                textarea(name="message", cols="30", rows="10" ) 
+            button.btn-submit(type='submit') Submit        
         else 
             a(href='./membership') Sign up and become a member to create new messages!
 
