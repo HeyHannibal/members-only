@@ -1,10 +1,16 @@
 extends layout
 
 block content
-  a(href='/comment') Leave a Comment
+  a(href='/message') Leave a message
   if(messages)
     each message in messages
       div.message
-      h2= message.title
-      a(href=(`/comment/user/${message.user._id}`)) by #{message.user.username}
-      p= message.text
+      if(user)
+        h2= message.title
+      else
+        h2 Become a member to see the latest messages 
+      a(href=(`/message/user/${message.user._id}`)) by #{message.user.username}
+      if(user)
+        p= message.text
+      else 
+        p Unavailable

@@ -78,6 +78,11 @@ passport.deserializeUser(function (id, done) {
   });
 });
 
+app.use(function(req,res,next) {
+  res.locals.currentUser = req.user;
+  next()
+})
+
 app.get("/sign-up", (req, res) => res.render("sign-up-form"));
 app.get("/log-in", (req, res) => res.render("log-in-form"));
 app.get("/show-db", (req, res, next) => {
@@ -103,19 +108,20 @@ app.post("/sign-up", (req, res, next) => {
   });
 });
 
-app.get("/comment", (req, res) => res.render("comment"));
-app.get("/comment/user/:id", (req, res) => {
-  if(req.params.id)
-  Message.find({'user': req.params.id})
-  .sort({date : 1})
-  .populate('user')
-  .exec(function (err, messages) {
-    if (err) {return next(err); }
-    console.log(messages)
-    res.render('user-messages', { messages: messages, })
-  })
-  else res.redirect('/')
-})
+app.get("/message/user/:id", (req, res) => {
+  if (req.params.id)
+    Message.find({ user: req.params.id })
+      .sort({ date: 1 })
+      .populate("user")
+      .exec(function (err, messages) {
+        if (err) {
+          return next(err);
+        }
+        //console.log(messages)
+        res.render("user-messages", { messages: messages, user: req.user  });
+      });
+  else res.redirect("/");
+});
 app.post(
   "/log-in",
   passport.authenticate("local", {
@@ -128,16 +134,36 @@ app.get("/log-out", (req, res) => {
   res.redirect("/");
 });
 
-app.post("/comment", (req, res, next) => {
-  const newComment = new Message({
+
+app.get("/message", (req, res) => res.render("message-form", {user: req.user}));
+
+app.post("/message", (req, res, next) => {
+  const newmessage = new Message({
     title: req.body.title,
-    text: req.body.comment, 
-    user: req.user.id
-  })
-  newComment.save((err) => {
-    if (err) {return next(err)}
-    res.redirect("/")
-  })
+    text: req.body.message,
+    user: req.user.id,
+  });
+  newmessage.save((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+app.get("/membership", (req, res) => res.render("member-form"));
+app.post("/membership", (req, res) => {
+  if (req.body.secretword === process.env.supersecretpassword) {
+    User.findByIdAndUpdate(req.user._id, { is_member: true }).exec(
+      (err, result) => {
+        if(err) {next(err)}
+        console.log(result);
+        req.user.is_member = true
+        res.redirect("/");
+        
+      }
+    );
+  } else res.redirect("/");
 });
 
 // catch 404 and forward to error handler

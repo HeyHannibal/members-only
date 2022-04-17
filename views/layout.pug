@@ -14,4 +14,6 @@ html
         else 
           h3= user.username
           a(href='/log-out') Log out
+            if(!user.member)
+              a(href='/membership') Membership
     block content
