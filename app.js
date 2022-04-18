@@ -16,13 +16,11 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
 const User = require("./models/user");
-const Message = require("./models/message");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const actionsRouter = require("./routes/actions");
 const app = express();
-
 
 // passport
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
@@ -42,7 +40,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/action", actionsRouter);
-
 
 // Set up local strategy
 passport.use(
@@ -89,7 +86,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-
 /// Signup
 app.get("/sign-up", (req, res) => res.render("sign-up-form"));
 
@@ -123,24 +119,6 @@ app.get("/log-out", (req, res) => {
   res.redirect("/");
 });
 
-
-
-// app.get("/membership", (req, res) => res.render("member-form"));
-// app.post("/membership", (req, res) => {
-//   if (req.body.secretword === process.env.supersecretpassword) {
-//     User.findByIdAndUpdate(req.user._id, { is_member: true }).exec(
-//       (err, result) => {
-//         if (err) {
-//           next(err);
-//         }
-//         console.log(result);
-//         req.user.is_member = true;
-//         res.redirect("/");
-//       }
-//     );
-//   } else res.redirect("/");
-// });
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -157,6 +135,4 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-
-exports.passport = passport
 module.exports = app;
