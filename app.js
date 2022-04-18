@@ -23,6 +23,8 @@ const usersRouter = require("./routes/users");
 const actionsRouter = require("./routes/actions");
 const app = express();
 
+
+// passport
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -40,6 +42,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/action", actionsRouter);
+
+
 // Set up local strategy
 passport.use(
   new LocalStrategy((username, password, done) => {
@@ -85,16 +89,9 @@ app.use(function (req, res, next) {
   next();
 });
 
+
+/// Signup
 app.get("/sign-up", (req, res) => res.render("sign-up-form"));
-app.get("/login", (req, res) => res.render("login-form"));
-app.get("/show-db", (req, res, next) => {
-  User.find({}).exec(function (err, users) {
-    if (err) {
-      return next(err);
-    } else console.log(users);
-    res.redirect("./");
-  });
-});
 
 app.post("/sign-up", (req, res, next) => {
   bcrypt.hash(req.body.password[0], 10, (err, hashedPassword) => {
@@ -110,20 +107,9 @@ app.post("/sign-up", (req, res, next) => {
   });
 });
 
-app.get("/message/user/:id", (req, res) => {
-  if (req.params.id)
-    Message.find({ user: req.params.id })
-      .sort({ date: 1 })
-      .populate("user")
-      .exec(function (err, messages) {
-        if (err) {
-          return next(err);
-        }
-        //console.log(messages)
-        res.render("user-messages", { messages: messages, user: req.user });
-      });
-  else res.redirect("/");
-});
+// Login
+app.get("/login", (req, res) => res.render("login-form"));
+
 app.post(
   "/login",
   passport.authenticate("local", {
@@ -131,42 +117,29 @@ app.post(
     failureRedirect: "/",
   })
 );
+
 app.get("/log-out", (req, res) => {
   req.logout();
   res.redirect("/");
 });
 
-// app.get("/message", (req, res) => res.render("message-form", {user: req.user}));
 
-// app.post("/message", (req, res, next) => {
-//   const newmessage = new Message({
-//     title: req.body.title,
-//     text: req.body.message,
-//     user: req.user.id,
-//   });
-//   newmessage.save((err) => {
-//     if (err) {
-//       return next(err);
-//     }
-//     res.redirect("/");
-//   });
+
+// app.get("/membership", (req, res) => res.render("member-form"));
+// app.post("/membership", (req, res) => {
+//   if (req.body.secretword === process.env.supersecretpassword) {
+//     User.findByIdAndUpdate(req.user._id, { is_member: true }).exec(
+//       (err, result) => {
+//         if (err) {
+//           next(err);
+//         }
+//         console.log(result);
+//         req.user.is_member = true;
+//         res.redirect("/");
+//       }
+//     );
+//   } else res.redirect("/");
 // });
-
-app.get("/membership", (req, res) => res.render("member-form"));
-app.post("/membership", (req, res) => {
-  if (req.body.secretword === process.env.supersecretpassword) {
-    User.findByIdAndUpdate(req.user._id, { is_member: true }).exec(
-      (err, result) => {
-        if (err) {
-          next(err);
-        }
-        console.log(result);
-        req.user.is_member = true;
-        res.redirect("/");
-      }
-    );
-  } else res.redirect("/");
-});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -184,4 +157,6 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
+
+exports.passport = passport
 module.exports = app;

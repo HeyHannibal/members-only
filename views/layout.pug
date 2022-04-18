@@ -5,15 +5,15 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     div#nav
-      h1 Auth-app
+      a(href='../') Auth-app 
       div#entry
         if (!user)
           a(href='/sign-up') Sign up
           a(href='/login') Log in
-          a(href='/Log-db') Log-db
         else 
           h3= user.username
           a(href='/log-out') Log out
-            if(!user.member)
-              a(href='/membership') Membership
+            if(!user.is_member)
+              a(href='/action/membership') Membership
+            
     block content
