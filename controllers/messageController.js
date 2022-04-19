@@ -27,7 +27,6 @@ exports.get_user_message = function (req, res) {
         if (err) {
           return next(err);
         }
-        //console.log(messages)
         res.render("user-messages", { messages: messages, user: req.user });
       });
   else res.redirect("/");

@@ -6,13 +6,19 @@ block content
     form(method='POST', action='')
         div.from-group
             label(for='username') Username 
-            input#username.form-input(type='text' placehoder='User', name='username')
+            input#username.form-input(type='text' placehoder='User', name='username' value=(undefined===username ? '' : username))
+            if(errors ? errors.username : false)
+                p.error username #{errors.username.msg}
         div.from-group
             label(for='password') Password
             input#password.form-input(type='password', name='password')
+            if(errors ? errors.password : false)
+                p.error #{errors.password.msg}
         div.from-group
-            label(for='password') Confirm Password 
-            input#password.form-input(type='password', name='password')
+            label(for='confirmpassword') Confirm Password 
+            if(errors ? errors.confirmpassword : false)
+                p.error #{errors.confirmpassword.msg}
+            input#password.form-input(type='password', name='confirmpassword')
         button.btn-submit(type='submit') Submit        
 
 

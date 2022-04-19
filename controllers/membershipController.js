@@ -10,7 +10,6 @@ exports.post_membership = function (req, res) {
         if (err) {
           next(err);
         }
-        console.log(result);
         req.user.is_member = true;
         res.redirect("/");
       }

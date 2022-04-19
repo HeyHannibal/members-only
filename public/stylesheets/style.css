@@ -16,3 +16,8 @@ a {
 #entry a{
   padding: 0 1rem;
 }
+
+
+.error{
+  color: red
+}
